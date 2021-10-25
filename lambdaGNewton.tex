@@ -142,11 +142,13 @@ source) in 2017.''
 \begin{nrcanFrame}
   \frametitle{FAAS/Serverless: Best Practices: Some references}
   \begin{itemize}
-  \item \textit{\href{https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html}{Best practices for working with AWS Lambda functions}}
+  \item AWS \textit{\href{https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html}{Best practices for working with AWS Lambda functions}}
   \item \textit{\href{https://www.captechconsulting.com/blogs/applying-microservice-patterns-best-practices-to-faas-part-1-faas-overview}{Applying Microservice Patterns \& Best Practices To FaaS (Part 1 - FaaS Overview)}}
-  \item \textit{\href{https://www.intentsg.com/aws-lambda-serverless-coding-best-practices/}{AWS Lambda Serverless Coding Best Practices}}
+  \item AWS \textit{\href{https://www.intentsg.com/aws-lambda-serverless-coding-best-practices/}{AWS Lambda Serverless Coding Best Practices}}
   \item
     \textit{\href{https://martinfowler.com/articles/serverless.html}{Serverless Architectures}}
+  \item Azure \textit{\href{https://docs.microsoft.com/en-us/azure/azure-functions/functions-best-practices?tabs=csharp}{Best practices for reliable Azure Functions}}
+  \item Azure \textit{\href{https://www.devbridge.com/articles/how-when-and-why-to-use-microsoft-azure-cloud-services/}{How, when, and why to use Microsoft Azure Cloud Services Azure Functions}}
     \end{itemize}
 \end{nrcanFrame}
 
@@ -301,6 +303,35 @@ def lambda_handler(event, context):
   $\#1 + \#2$ are the \alert{cold start}.\\
   \textit{Cold start} can be avoided using \href{https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html}{provisioned concurrency}.\\
   Full explanation see \href{https://aws.amazon.com/blogs/compute/operating-lambda-performance-optimization-part-1/}{Operating Lambda: Performance optimization – Part 1}
+\end{nrcanFrame}
+
+\nrcanGraphicFrame
+  {Cold Start Comparison: AWS, Azure, GCP}
+  {coldStartComparison}
+  {width=\paperwidth*10/11}
+  {https://mikhail.io/serverless/coldstarts/big3/}
+
+  \nrcanGraphicFrame
+  {Cold Starts in Azure Functions: Windows vs. Linux}
+  {azureWindowsVsLinux.png}
+  {width=\paperwidth*10/11}
+  {https://mikhail.io/serverless/coldstarts/azure/}
+
+  \nrcanGraphicFrame
+  {Cold Starts in Azure Functions: Impact of Package Size}
+  {azurePackageSize.png}
+  {width=\paperwidth*10/11}
+  {https://mikhail.io/serverless/coldstarts/azure/}
+
+
+\begin{nrcanFrame}
+  \frametitle{Cold start/latency references}
+  \begin{enumerate}
+  \item GCP \textit{\href{https://www.infoq.com/news/2021/09/cloud-functions-min-instances/}{Google Introduces Minimum Instances to Reduce Cold Starts}}
+  \item Comparison \textit{\href{https://mikhail.io/serverless/coldstarts/big3/}{Comparison of Cold Starts in Serverless Functions across AWS, Azure, and GCP}}
+  \item Azure \href{https://mikhail.io/serverless/coldstarts/azure/}{Cold Starts in Azure Functions}
+  \end{enumerate}
+
 \end{nrcanFrame}
 
 
