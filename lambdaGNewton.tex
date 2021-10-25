@@ -1,0 +1,516 @@
+\documentclass[11pt,aspectratio=169]{beamer}
+
+\usepackage{listings}
+
+\input{nrcan_template_base}
+
+
+\title[Crisis] % (optional, only for long titles)
+{Microservices: APIs, Lambdas and FAAS}
+\author[Newton] % (optional, for multiple authors)
+{$\lambda$ Glen ~Newton $\lambda$ }
+\institute[Dept This and That] % (optional)
+{
+  Section Head, Scientific Computing\\
+  Geological Survey of Canada\\
+  Natural Resources Canada
+}
+\date[2021 10 14] % (optional)
+     {Microservices Interest Group\\
+     2021 10 14}
+
+\logo{\begin{tikzpicture}
+    \node at (0cm,0cm) {};
+        \node at (0cm,18cm) {};
+ \filldraw[color=blue!50, fill=blue!25, very thick](1mm,17.4cm) circle (0.5);
+ \node[color=white] at (1mm,17.4cm) {\Huge $\lambda$};
+ \end{tikzpicture}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Title page
+\nrcanTitleframe
+
+  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{nrcanFrame}
+  \frametitle{Introduction}
+  \begin{itemize}
+  \item FAAS (Function-as-a-Service) in the \textit{X}-as-a-service universe
+  \item What is FAAS and how does it work?
+  \item How useful is it / what are the use cases?
+  \item Deep dive using AWS Lambda
+  \item What are the advantages/disadvantages?
+
+    \end{itemize}
+\end{nrcanFrame}
+
+\begin{nrcanFrame}
+  \frametitle{What is FAAS? Wikipedia: FAAS}
+  \textit{``Function as a service (FaaS) is a category of cloud
+    computing services that provides a platform allowing customers to
+    develop, run, and manage application functionalities \alert{without the
+    complexity of building and maintaining the infrastructure
+    typically associated with developing and launching an app}.
+    Building an application following this model is one way of
+    achieving a "serverless" architecture, and is typically used when
+    building \alert{microservices} applications.  
+\\
+      \vspace*{2mm}
+      FaaS was initially offered by various start-ups circa 2010, such
+      as PiCloud. 
+      \\
+\vspace{2mm}
+AWS \alert{Lambda} was the first FaaS offering by a large public cloud
+vendor, followed by Google \alert{Cloud Functions}, Microsoft \alert{Azure Functions},
+IBM/Apache's OpenWhisk (open source) in 2016 and Oracle Cloud Fn (open
+source) in 2017.'' 
+}
+
+  {\tiny Source: \url{https://en.wikipedia.org/wiki/Function_as_a_service}}
+\end{nrcanFrame}
+    
+\nrcanGraphicFrame
+  {Car as a Service}
+  {carServiceAnalogy}
+  {height=\paperheight/5*4,width=\paperwidth/7*6}
+  {https://rajeevkuruganti.com/2019/cloud-iaas-paas-saas-and-more/}
+
+\nrcanGraphicFrame
+  {Hosting Models: Traditional, Cloud, Cloud Native}
+  {cloudStack0}
+  {width=\paperwidth/7*6,height=\paperheight/8*7}
+  {https://devops.stackexchange.com/questions/5688/how-can-caas-paas-and-faas-users-know-if-the-operating-system-of-their-server}
+
+\nrcanGraphicFrame
+  {Customer-managed unit of scale}
+  {cloudStacks}
+  {width=\paperwidth/4*3}
+  {https://serverless.zone/abstracting-the-back-end-with-faas-e5e80e837362}
+
+\begin{nrcanFrame}
+  \frametitle{FAAS Characteristics 1/2}
+  \begin{itemize}
+  \item Serverless: server completely abstracted / hidden from
+    customer: No hardware, server, VM, OS, etc to manage
+  \item Focus on code rather than infrastructure
+  \item Short-lived
+  \item Use only when needed / pay only for use
+  \item Event driven
+  \item Scalable by design
+  \item Concurrent by design
+  \end{itemize}
+\end{nrcanFrame}
+
+
+\begin{nrcanFrame}
+  \frametitle{FAAS Characteristics 2/2}
+  \begin{itemize}
+  \item Reliable / redundant 
+  \item Provisioning/deployment (usually) simple
+  \item \alert{Secure}: Functions have as-restrictive-as-possible IAM roles;
+    they only have permissions to do their one activity.
+  \end{itemize}
+\end{nrcanFrame}
+
+
+
+\begin{nrcanFrame}
+  \frametitle{FAAS Characteristics: Software developer best practices}
+    \begin{itemize}
+  \item Functions perform only one action
+  \item Small, well-defined and scoped
+  \item Isolation of concerns
+  \item Stateless (with exceptions)
+  \item Limit dependencies / reduce deployment package size. For some languages, the loading of
+    libraries will add to latency
+  \item Keep separate handler code from function business
+    logic.
+    Allows for unit testing and (somewhat) limits vendor lock-in.
+    \end{itemize}
+\end{nrcanFrame}
+
+
+
+
+\begin{nrcanFrame}
+  \frametitle{FAAS/Serverless: Best Practices: Some references}
+  \begin{itemize}
+  \item \textit{\href{https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html}{Best practices for working with AWS Lambda functions}}
+  \item \textit{\href{https://www.captechconsulting.com/blogs/applying-microservice-patterns-best-practices-to-faas-part-1-faas-overview}{Applying Microservice Patterns \& Best Practices To FaaS (Part 1 - FaaS Overview)}}
+  \item \textit{\href{https://www.intentsg.com/aws-lambda-serverless-coding-best-practices/}{AWS Lambda Serverless Coding Best Practices}}
+  \item
+    \textit{\href{https://martinfowler.com/articles/serverless.html}{Serverless Architectures}}
+    \end{itemize}
+\end{nrcanFrame}
+
+
+
+\begin{nrcanFrame}
+  \frametitle{AWS Lambda: Case Study}
+  \begin{itemize}
+  \item AWS Lambda  = AWS FAAS
+  \item Supports multiple languages: Java, Go, PowerShell, Node.js, C\#, Python,Ruby + \href{https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html}{custom runtimes} (any programming language)
+  \item zip file or container \href{https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-package.html}{packaging}
+  \item Event driven
+  \item Pay per use
+  \item \href{https://aws.amazon.com/blogs/aws/new-for-aws-lambda-1ms-billing-granularity-adds-cost-savings/}{1ms billing granularity}
+  \end{itemize}
+\end{nrcanFrame}
+
+
+\begin{nrcanFrame}
+  \frametitle{AWS Lambda: Default limits 1/2}
+  \begin{itemize}
+  \item Local \textit{ephemeral} storage \texttt{/tmp}: 500 MB 
+  \item Max concurrency: 1000 instances
+  \item Memory: 128 MB to 10 GB
+  \item CPU: Proportional to memory (see below)
+  \item Timeout: 15min
+  \end{itemize}
+\end{nrcanFrame}
+
+
+
+
+\begin{nrcanFrame}
+  \frametitle{AWS Lambda: Default limits 2/2}
+  \begin{itemize}
+  \item Invocation payload: 6 MB (synchronous); 256 KB (asynchronous)
+  \item Deployment package (zip) size: 50 MB (zipped), 250 MB (unzipped)
+  \item Container image code package size limit: 10 GB
+  \item (As of June 2020): Mount \href{https://aws.amazon.com/efs/}{EFS (elastic file system)}
+    \begin{itemize}
+    \item This allows lambdas to be stateful across invocations and lambdas, with state stored in EFS volume
+    \item Mount adds to cold start latency (see below):
+      \href{https://aws.amazon.com/blogs/compute/using-amazon-efs-for-aws-lambda-in-your-serverless-applications/}{``hundreds
+        of milliseconds''} of latency
+    \item Lambda needs to be in the same
+      \href{https://aws.amazon.com/vpc/}{VPC (virtual private cloud)} as the EFS volume
+    \end{itemize}
+  \end{itemize}
+\end{nrcanFrame}
+
+
+\begin{nrcanFrame}
+  \frametitle{AWS Lambda: Proportion of vCPU to memory}
+  \centering
+  \begin{table}
+  \begin{tabular}{|c||l|}
+    \hline    \hline
+    \bf Memory & \# \bf vCPU \\  \hline
+    128 MB & 1 vCPU \\ \hline
+  832 MB & 2 vCPU \\ \hline
+  3 GB & 3 vCPU \\ \hline
+  5.3 GB & 4 vCPU \\ \hline
+  7 GB & 5 vCPU \\ \hline
+  8.8+ GB & 6 vCPU \\
+      \hline    \hline
+  \end{tabular}
+  \end{table}
+\end{nrcanFrame}
+
+
+
+\begin{nrcanFrame}[fragile=singleslide]
+    \frametitle{Go language lambda boilerplate}
+  \centering
+{\scriptsize
+  \begin{lstlisting}[language=go]
+package main
+
+import (
+        "fmt"
+        "context"
+        "github.com/aws/aws-lambda-go/lambda"
+)
+
+type MyEvent struct {
+        Name string `json:"name"`
+}
+
+func HandleRequest(ctx context.Context, name MyEvent) (string, error) {
+        return fmt.Sprintf("Hello %s!", name.Name ), nil
+}
+
+func main() {
+        lambda.Start(HandleRequest)
+}
+  \end{lstlisting}
+}
+  {\tiny Source: \url{https://docs.aws.amazon.com/lambda/latest/dg/golang-handler.html}}
+\end{nrcanFrame}
+
+
+
+
+
+  \begin{nrcanFrame}[fragile=singleslide]
+    \frametitle{Python language lambda boilerplate}
+               {\footnotesize
+                 \begin{lstlisting}[language=python]
+def lambda_handler(event, context):
+    message = 'Hello {} {}!'.format(event['first_name'], event['last_name'])  
+    return { 
+        'message' : message
+    }
+                 \end{lstlisting}
+                 
+                 \vspace{3cm}
+                        {\tiny Source: \url{https://docs.aws.amazon.com/lambda/latest/dg/python-handler.html}}}
+  \end{nrcanFrame}
+
+
+\nrcanGraphicFrame
+  {Example architecture showing both HTTP and S3 events}
+  {awsLambdaEventArch}
+  {height=\paperheight*4/5}
+  {https://programmaticponderings.com/2019/10/04/event-driven-serverless-architectures-with-aws-lambda-sqs-dynamodb-and-api-gateway/}
+
+
+\begin{nrcanFrame}
+  \frametitle{Lambda containers}
+  \begin{itemize}
+  \item Docker or Open Container Initiative (OCI)
+  \item Deploy from \href{https://aws.amazon.com/ecr/}{Amazon Elastic Container Registry (ECR)}
+  \item Many AWS-supplied base image options with \href{https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html}{pre-installed runtimes}
+  \item
+    AWS - \href{https://docs.aws.amazon.com/lambda/latest/dg/images-create.html}{Creating
+      Lambda container images}
+  \end{itemize}
+\end{nrcanFrame}
+
+
+\begin{nrcanFrame}
+  \frametitle{Cold start/latency}
+  When the Lambda is invoked, the following steps take place, each taking time and adding to the latency of the function call:
+  \begin{enumerate}
+  \item Code download (zip from S3 or container from ECR)
+  \item Start execution environment
+  \item Run initialization code
+  \item Run handler code
+  \end{enumerate}
+
+  \ \\
+  $\#1 + \#2$ are the \alert{cold start}.\\
+  \textit{Cold start} can be avoided using \href{https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html}{provisioned concurrency}.\\
+  Full explanation see \href{https://aws.amazon.com/blogs/compute/operating-lambda-performance-optimization-part-1/}{Operating Lambda: Performance optimization – Part 1}
+\end{nrcanFrame}
+
+
+\begin{nrcanFrame}
+  \frametitle{Lambda Lifecycle 1/2}
+  The AWS lifecycle phases are:
+  \begin{enumerate}
+  \item Init: Happens at first invocation, or, with provisioned
+    concurrency, in advance.
+    \begin{enumerate}
+    \item Extension init
+    \item Runtime init
+    \item Function init
+    \end{enumerate}
+  \item Invoke
+  \item Shutdown 
+    \begin{enumerate}
+    \item Runtime shutdown
+    \item Extension shutdown
+    \end{enumerate}
+  \end{enumerate}
+\end{nrcanFrame}
+
+
+
+
+\begin{nrcanFrame}
+  \frametitle{Lambda Lifecycle 2/3}
+  \begin{itemize}
+    \item When a lambda \textit{instance} has responded to an event and completed, it is \alert{not immediately removed/deleted}:
+  its environment is kept for an undefined period of time.
+\item If the lambda is reinvoked during this time, this \textit{instance} may be used to respond to the request.
+  \alert{If this happens, there is no cold start}.
+\item This
+  \href{https://xebia.com/blog/til-that-aws-lambda-terminates-instances-preemptively/}{experiment}
+  from Sept 2020 suggests that lambdas are
+  \textit{``\dots terminated
+    if a  function isn’t invoked for 15 minutes \ldots didn’t find the
+    ‘guaranteed to be cut-off’ time, but it’s somewhere between 10 and
+    15 minutes of inactivity.''} -- Caveat emptor
+\item 
+  AWS
+  \href{https://docs.aws.amazon.com/lambda/latest/dg/runtimes-context.html\#runtimes-lifecycle-shutdown}{suggests}
+  that lambda instances can \textit{cache} data in their \texttt{/tmp} directories, just in case they are reinvoked.
+  Additional function logic is needed to take advantage of this situation.
+  If provisioned concurrency is used, then this strategy is a more
+  viable option.
+  \end{itemize}
+\end{nrcanFrame}
+
+\nrcanGraphicFrame
+  {Lambda Lifecycle 3/3}
+  {OverviewSuccessfulInvokes}
+  {width=\paperwidth*10/11}
+  {https://docs.aws.amazon.com/lambda/latest/dg/runtimes-context.html}
+
+
+
+\begin{nrcanFrame}
+  \frametitle{Cold Start for different languages (milliseconds), different memory}
+  \centering
+  \begin{table}
+  \begin{tabular}{|r||r|r|r|r|r|r|r|r|}\hline    \hline
+    \bf Memory      &\bf Java 	&\bf Graalvm& \bf .Net &	\bf Go& 	\bf Rust& 	\bf Python& 	\bf NodeJS& 	\bf Ruby\\ \hline
+    128mb 	&OOM 	&1480 &	  11810 &	1050 &	844 &	641 &	        1190 &	773\\ \hline
+    256mb 	&6570 &	774 &	  5820 &	661 &	480 &	527 &	        769 &	612\\ \hline
+    512mb 	&5180 &	684 &	  2940 &	404 &	304 &	502 &	        771 &	677\\ \hline
+    1024mb 	&4450 &	531 &	  1500 &	299 &	234 &	482 &	        656 &	652\\ \hline
+    10240mb     &2790 &	501 &	  904 &	        327 &	219 &	449 &	        518 &	649\\ \hline
+      \hline 
+  \end{tabular}
+  \end{table}
+
+  {\tiny Source: \url{https://filia-aleks.medium.com/benchmarking-all-aws-lambda-runtimes-in-2021-cold-start-part-1-e4146fe89385}}
+\end{nrcanFrame}
+
+
+
+\nrcanGraphicFrame
+  {128 MB Average Warm Start (milliseconds)}
+  {warmStart}
+  {width=\paperwidth/7*6}
+  {https://filia-aleks.medium.com/aws-lambda-battle-2021-performance-comparison-for-all-languages-c1b441005fd1}
+
+
+\begin{nrcanFrame}
+  \frametitle{Lambda cost exercise 1/4}
+  Example modest REST lambda microservice:
+  \begin{itemize}
+  \item 60 requests / minute (86,400 request / day)
+  \item 512 MB lambda memory
+  \item 2 second (2000ms) average run time
+  \item AWS Region: Canada (Central)
+  \end{itemize}
+\end{nrcanFrame}
+
+
+\begin{nrcanFrame}
+  \frametitle{Lambda cost exercise 2/4: Lambda \textit{only} costs, per month}
+  Using
+  \href{https://calculator.aws/\#/createCalculator/Lambda}
+       {AWS Pricing Calculator}:
+  \ \\
+      {\footnotesize
+        \begin{itemize}
+        \item \texttt{2,592,000 requests x 2,000 ms x 0.001 ms to sec conversion factor = 5,184,000.00 total compute (seconds)}
+        \item \texttt{0.50 GB x 5,184,000.00 seconds = 2,592,000.00 total compute (GB-s)}
+        \item \texttt{2,592,000.00 GB-s x 0.0000166667 USD = 43.20 USD (monthly compute charges)}
+        \item \texttt{2,592,000 requests x 0.0000002 USD = 0.52 USD (monthly request) charges)}
+        \end{itemize}
+        }
+            \ \\
+      \texttt{\$43.20 USD + \$0.52 USD = \textbf{\$43.72 USD (\$54.14 CAD)}}
+
+\end{nrcanFrame}
+
+
+
+\begin{nrcanFrame}
+  \frametitle{Lambda cost exercise 3/4: API Gateway costs}
+  Using
+  \href{https://calculator.aws/\#/createCalculator/APIGateway}{AWS
+    Pricing Calculator}:
+  \ \\ \vspace{1mm}
+        {\footnotesize 
+            \begin{itemize}
+            \item
+              \texttt{2.592 requests x 1,000,000 unit multiplier = 2,592,000 total REST API requests}
+            \item
+              \texttt{Tiered price for: 2592000 requests}
+            \item \texttt{2592000 requests x 0.0000035000 USD = 9.07 USD}
+            \item \texttt{Total tier cost = 9.0720 USD (REST API requests)}
+            \item \texttt{Tiered price total for REST API requests: 9.072 USD}
+            \item \texttt{0 USD per hour x 730 hours in a month = 0.00 USD for cache memory}
+            \item \texttt{Dedicated cache memory total price: 0.00 USD}
+            \end{itemize}
+            }
+    \ \\
+    \texttt{API Gateway cost (monthly): \textbf{\$9.07 USD (\$11.23 CAD})}\\
+
+\end{nrcanFrame}
+
+        \begin{nrcanFrame}
+  \frametitle{Lambda cost exercise 4/4: Total costs}
+    \ \\ \vspace{1mm}
+\texttt{\textbf{Total per month (Lambda + API Gateway): \$65.37 CAD}}
+\ \\
+\vspace{1cm}
+    { \alert{NB: Does not cost-out backend AWS DB costs: most applications
+        would likely have this additional cost. But this would be the same for all
+        implementations, i.e. Lambda,
+        \href{https://aws.amazon.com/ec2/}{EC2},
+        \href{https://aws.amazon.com/fargate/?c=ser&sec=srv}{Fargate},
+        \href{https://aws.amazon.com/eks/?pg=ln&sec=hiw}{Elastic Kubernetes
+          Service (EKS)} etc\ldots
+      }
+    }
+\end{nrcanFrame}
+
+\nrcanGraphicFrame
+  {FAAS Decision Tree (?)}
+  {faas-decision-tree}
+  {width=\paperwidth/7*6}
+  {https://developer.ibm.com/articles/when-to-use-iaas-faas-paas-and-caas/}
+
+
+\begin{nrcanFrame}
+  \frametitle{FAAS Disadvantages (1/2)}
+    \begin{itemize}
+    \item Needs tuning (to optimize cost vs. performance): Memory and \# of vCPUs.
+      Tools exist to automate this: AWS: \href{https://docs.aws.amazon.com/lambda/latest/operatorguide/profile-functions.html}{AWS Lambda Power Tuning}.
+  \item Limits on memory and \# vCPUs: max 10 GB RAM and/or 6 vCPUs (AWS
+    Lambda): Does not support many scientific use cases (i.e. large
+    memory work loads, etc)
+  \item Limits on running time (15min for AWS): Too short for some enterprise and scientific workloads.
+    For some use cases, this can be overcome with \href{https://en.wikipedia.org/wiki/Application\_checkpointing}{checkpointing} (often used in traditional high performance computing HPC) and lambda \href{https://en.wikipedia.org/wiki/Pipeline\_(software)}{pipelining}.
+  \item Cold start issues
+    \end{itemize}
+\end{nrcanFrame}
+
+\begin{nrcanFrame}
+  \frametitle{FAAS Disadvantages (2/2)}
+    \begin{itemize}
+  \item Non-traditional architecture and technologies can challenge some developers
+  \item Stateless, which can be a challenge to designing and architecting
+  \item Vendor lock-in: Not too high a risk: lock-in is more likely
+    with the use of vendor BAAS (backend as a service) services like
+    backend databases, that the lambda uses
+  \item Basic monitoring and debugging : not as mature as other stacks,
+    can be problematic.
+    Improving. See: AWS: \href{https://docs.aws.amazon.com/lambda/latest/operatorguide/monitoring-observability.html}{Monitoring and observability}; Azure: \href{https://docs.microsoft.com/en-us/azure/azure-functions/functions-monitoring}{Monitor Azure Functions}
+    \end{itemize}
+\end{nrcanFrame}
+
+
+
+\begin{nrcanFrame}
+  \frametitle{Correction}
+  \begin{itemize}
+  \item MS Azure Functions \textit{do} support Docker (but only for certain
+    \href{https://docs.microsoft.com/en-us/azure/azure-functions/functions-scale}{hosting
+      plans})
+    \item Google Cloud has \href{https://cloud.google.com/run}{Cloud
+      Run}, basically like AWS Lambda containers
+  \end{itemize}
+\end{nrcanFrame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%% Last page (Canada word mark)
+\nrcanLastFrame
+
+\end{document}
