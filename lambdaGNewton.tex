@@ -570,43 +570,39 @@ def lambda_handler(event, context):
     series of individual tasks to work together.}
   -\href{https://www.bmc.com/blogs/it-orchestration-vs-automation-whats-the-difference/}
        {BMC Blogs, Stephen Watts, Sept 2020}
-
 \end{nrcanFrame}
 
 \begin{nrcanFrame}
   \frametitle{FAAS Orchestration: AWS}
-  \begin{itemize}
-  \item AWS: Step Functions -
-             \href{https://docs.aws.amazon.com/step-functions/index.html}{\textit{``Step Functions is a serverless
+  AWS: Step Functions -
+  \href{https://docs.aws.amazon.com/step-functions/index.html}{\textit{``Step Functions is a serverless
       orchestration service that lets you combine AWS Lambda functions
       and other AWS services to build business-critical
       applications}...\href{https://aws.amazon.com/step-functions/?step-functions.sort-by=item.additionalFields.postDateTime&step-functions.sort-order=desc}{
-           Workflows \alert{manage failures, retries, parallelization,}
-           service integrations, and observability so developers can
-           focus on higher-value business logic.}}''
-    \begin{itemize}
-    \item State machine, encoded into JSON
-    \item API to run \alert{and build}
-    \item Visual editor
-      \href{https://docs.aws.amazon.com/step-functions/latest/dg/workflow-studio.html}
-      {Workflow Studio}
-    \end{itemize}
+      Workflows \alert{manage failures, retries, parallelization,}
+      service integrations, and observability so developers can
+      focus on higher-value business logic.}}''
+  \begin{itemize}
+  \item State machine, encoded into JSON
+  \item API to run \alert{and build}
+  \item Visual editor
+    \href{https://docs.aws.amazon.com/step-functions/latest/dg/workflow-studio.html}
+         {Workflow Studio}
   \end{itemize}
 \end{nrcanFrame}
 
 \begin{nrcanFrame}
   \frametitle{FAAS Orchestration: AWS}
-  \begin{itemize}
-    \item \href{https://aws.amazon.com/managed-workflows-for-apache-airflow/}
-       {Amazon Managed Workflows for Apache Airflow (MWAA)}
-    \item (See GCP below)
-  \end{itemize}
+  \href{https://aws.amazon.com/managed-workflows-for-apache-airflow/}
+      {Amazon Managed Workflows for Apache Airflow (MWAA)}
+      \begin{itemize}
+      \item (See GCP below)
+      \end{itemize}
 \end{nrcanFrame}
 
 \begin{nrcanFrame}
   \frametitle{FAAS Orchestration: Azure}
-    \begin{itemize}
-    \item \href{https://docs.microsoft.com/en-us/azure/azure-functions/durable/}
+    \href{https://docs.microsoft.com/en-us/azure/azure-functions/durable/}
          {Durable Functions}
          -``\textit{Durable Functions is an extension of Azure
            Functions that lets you write stateful functions in a
@@ -614,28 +610,30 @@ def lambda_handler(event, context):
            define stateful workflows by writing orchestrator functions
            and stateful entities by writing entity functions using the
            Azure Functions programming model.}''
-       \item State machine, encoded into programming language, C\#,
-         JS, Python, F\#, PowerShell
-       \item API \alert{to run}
-    \end{itemize}
+         \begin{itemize}
+         \item State machine, encoded into programming language, C\#,
+           JS, Python, F\#, PowerShell
+         \item API \alert{to run}
+         \end{itemize}
 \end{nrcanFrame}
 
 \begin{nrcanFrame}
   \frametitle{FAAS Orchestration: GCP}
-  \begin{itemize}
-  \item \href{https://cloud.google.com/composer/}
-         {Cloud Composer}
-         -``\textit{A fully managed workflow orchestration service
-           built on
-           \href{https://airflow.apache.org/}{Apache Airflow}.}''
-         \begin{itemize}
-         \item State machine, Python-centric
-         \item API to run and update?
-         \end{itemize}
-  \end{itemize}
-  NB: AWS also has Apache Airflo-based orchestration (Dec 2020):
-  \href{https://aws.amazon.com/managed-workflows-for-apache-airflow/}
-       {Amazon Managed Workflows for Apache Airflow (MWAA)}
+  \href{https://cloud.google.com/composer/}
+       {Cloud Composer}
+       -``\textit{A fully managed workflow orchestration service
+         built on
+         \href{https://airflow.apache.org/}{Apache Airflow}.}''
+       \begin{itemize}
+       \item State machine, Python-centric
+       \item API to run and update?
+       \end{itemize}
+       \vspace{3mm}
+       NB: AWS also has Apache Airflow-based orchestration
+       (\href{https://aws.amazon.com/about-aws/whats-new/2020/11/introducing-amazon-managed-workflows-for-apache-airflow-mwaa/}
+       {Nov 2020}):
+       \href{https://aws.amazon.com/managed-workflows-for-apache-airflow/}
+            {Amazon Managed Workflows for Apache Airflow (MWAA)}
 \end{nrcanFrame}
 
 
