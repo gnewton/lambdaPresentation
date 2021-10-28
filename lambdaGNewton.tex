@@ -574,30 +574,55 @@ def lambda_handler(event, context):
 \end{nrcanFrame}
 
 \begin{nrcanFrame}
-  \frametitle{FAAS Orchestration: Vendor support}
+  \frametitle{FAAS Orchestration: AWS}
   \begin{itemize}
-  \item AWS:
-    \href{https://docs.aws.amazon.com/step-functions/index.html}
-         {Step Functions} -
-         \textit{``Step Functions is a serverless
+  \item AWS: Step Functions -
+             \href{https://docs.aws.amazon.com/step-functions/index.html}{\textit{``Step Functions is a serverless
       orchestration service that lets you combine AWS Lambda functions
       and other AWS services to build business-critical
-      applications. ``}
+      applications}...\href{https://aws.amazon.com/step-functions/?step-functions.sort-by=item.additionalFields.postDateTime&step-functions.sort-order=desc}{
+           Workflows \alert{manage failures, retries, parallelization,}
+           service integrations, and observability so developers can
+           focus on higher-value business logic.}}''
     \begin{itemize}
+    \item State machine, encoded into JSON
+    \item API to run \alert{and build}
     \item Visual editor
       \href{https://docs.aws.amazon.com/step-functions/latest/dg/workflow-studio.html}
       {Workflow Studio}
     \end{itemize}
-  \item Azure:
-    \href{https://docs.microsoft.com/en-us/azure/azure-functions/durable/}
+  \end{itemize}
+\end{nrcanFrame}
+
+\begin{nrcanFrame}
+  \frametitle{FAAS Orchestration: Azure}
+    \begin{itemize}
+    \item \href{https://docs.microsoft.com/en-us/azure/azure-functions/durable/}
          {Durable Functions}
-         -``\textit{Durable Functions is an extension of Azure Functions that lets you write stateful functions in a serverless compute environment. The extension lets you define stateful workflows by writing orchestrator functions and stateful entities by writing entity functions using the Azure Functions programming model.}''
-  \item GCP:
-    \href{https://cloud.google.com/composer/}
+         -``\textit{Durable Functions is an extension of Azure
+           Functions that lets you write stateful functions in a
+           serverless compute environment. The extension lets you
+           define stateful workflows by writing orchestrator functions
+           and stateful entities by writing entity functions using the
+           Azure Functions programming model.}''
+       \item State machine, encoded into programming language, C\#,
+         JS, Python, F\#, PowerShell
+       \item API \alert{to run}
+    \end{itemize}
+\end{nrcanFrame}
+
+\begin{nrcanFrame}
+  \frametitle{FAAS Orchestration: GCP}
+  \begin{itemize}
+  \item \href{https://cloud.google.com/composer/}
          {Cloud Composer}
          -``\textit{A fully managed workflow orchestration service
            built on
            \href{https://airflow.apache.org/}{Apache Airflow}.}''
+         \begin{itemize}
+         \item State machine, Python-centric
+         \item API to run and update?
+         \end{itemize}
   \end{itemize}
 \end{nrcanFrame}
 
