@@ -15,9 +15,9 @@
   Geological Survey of Canada\\
   Natural Resources Canada
 }
-\date[2021 10 14] % (optional)
-     {Microservices Interest Group\\
-     2021 10 14}
+\date[2021 10 28] % (optional)
+     {NRCan Cloud Working Group\\
+     2021 10 28}
 
 \logo{\begin{tikzpicture}
     \node at (0cm,0cm) {};
@@ -100,11 +100,9 @@ source) in 2017.''
   \item Serverless: server completely abstracted / hidden from
     customer: No hardware, server, VM, OS, etc to manage
   \item Focus on code rather than infrastructure
-  \item Short-lived
-  \item Use only when needed / pay only for use
+  \item Basically short-lived functions that do a specific task
+  \item Pay only for use / run only when needed
   \item Event driven
-  \item Scalable by design
-  \item Concurrent by design
   \end{itemize}
 \end{nrcanFrame}
 
@@ -112,10 +110,13 @@ source) in 2017.''
 \begin{nrcanFrame}
   \frametitle{FAAS Characteristics 2/2}
   \begin{itemize}
+  \item Scalable by design
+  \item Concurrent by design
   \item Reliable / redundant 
   \item Provisioning/deployment (usually) simple
-  \item \alert{Secure}: Functions have as-restrictive-as-possible IAM roles;
-    they only have permissions to do their one activity.
+  \item \alert{Secure}: Functions (should) have IAM roles that 
+    allow them to do exactly
+    alert{(and only)} what they need to do.
   \end{itemize}
 \end{nrcanFrame}
 
@@ -124,13 +125,13 @@ source) in 2017.''
 \begin{nrcanFrame}
   \frametitle{FAAS Characteristics: Software developer best practices}
     \begin{itemize}
-  \item Functions perform only one action
-  \item Small, well-defined and scoped
+  \item Functions (should) perform only one action
+  \item Small, well-defined and specific scope
   \item Isolation of concerns
   \item Stateless (with exceptions)
   \item Limit dependencies / reduce deployment package size. For some languages, the loading of
     libraries will add to latency
-  \item Keep separate handler code from function business
+  \item Within functions, separate cloud vendor-specific handler code from function business
     logic.
     Allows for unit testing and (somewhat) limits vendor lock-in.
     \end{itemize}
@@ -142,13 +143,29 @@ source) in 2017.''
 \begin{nrcanFrame}
   \frametitle{FAAS/Serverless: Best Practices: Some references}
   \begin{itemize}
-  \item AWS \textit{\href{https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html}{Best practices for working with AWS Lambda functions}}
-  \item \textit{\href{https://www.captechconsulting.com/blogs/applying-microservice-patterns-best-practices-to-faas-part-1-faas-overview}{Applying Microservice Patterns \& Best Practices To FaaS (Part 1 - FaaS Overview)}}
-  \item AWS \textit{\href{https://www.intentsg.com/aws-lambda-serverless-coding-best-practices/}{AWS Lambda Serverless Coding Best Practices}}
+  \item AWS
+    \textit{\href{https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html}
+      {Best practices for working with AWS Lambda functions}}
+
+  \item AWS
+    \textit{\href{https://www.intentsg.com/aws-lambda-serverless-coding-best-practices/}
+      {AWS Lambda Serverless Coding Best Practices}}
+
+  \item Azure
+    \textit{\href{https://docs.microsoft.com/en-us/azure/azure-functions/functions-best-practices?tabs=csharp}
+      {Best practices for reliable Azure Functions}}
+
+  \item Azure
+    \textit{\href{https://www.devbridge.com/articles/how-when-and-why-to-use-microsoft-azure-cloud-services/}
+      {How, when, and why to use Microsoft Azure Cloud Services Azure Functions}}
+
+    \item
+      \textit{\href{https://martinfowler.com/articles/serverless.html}
+        {Serverless Architectures}}
+      
   \item
-    \textit{\href{https://martinfowler.com/articles/serverless.html}{Serverless Architectures}}
-  \item Azure \textit{\href{https://docs.microsoft.com/en-us/azure/azure-functions/functions-best-practices?tabs=csharp}{Best practices for reliable Azure Functions}}
-  \item Azure \textit{\href{https://www.devbridge.com/articles/how-when-and-why-to-use-microsoft-azure-cloud-services/}{How, when, and why to use Microsoft Azure Cloud Services Azure Functions}}
+    \textit{\href{https://www.captechconsulting.com/blogs/applying-microservice-patterns-best-practices-to-faas-part-1-faas-overview}
+      {Applying Microservice Patterns \& Best Practices To FaaS (Part 1 - FaaS Overview)}}
     \end{itemize}
 \end{nrcanFrame}
 
@@ -159,10 +176,11 @@ source) in 2017.''
   \begin{itemize}
   \item AWS Lambda  = AWS FAAS
   \item Supports multiple languages: Java, Go, PowerShell, Node.js, C\#, Python,Ruby + \href{https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html}{custom runtimes} (any programming language)
-  \item zip file or container \href{https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-package.html}{packaging}
+  \item Packaging:
+    \href{https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-package.html}
+    {zip file or container}
   \item Event driven
-  \item Pay per use
-  \item \href{https://aws.amazon.com/blogs/aws/new-for-aws-lambda-1ms-billing-granularity-adds-cost-savings/}{1ms billing granularity}
+  \item Pay per use (execution time * memory): \href{https://aws.amazon.com/blogs/aws/new-for-aws-lambda-1ms-billing-granularity-adds-cost-savings/}{1ms billing granularity}
   \end{itemize}
 \end{nrcanFrame}
 
@@ -171,10 +189,10 @@ source) in 2017.''
   \frametitle{AWS Lambda: Default limits 1/2}
   \begin{itemize}
   \item Local \textit{ephemeral} storage \texttt{/tmp}: 500 MB 
-  \item Max concurrency: 1000 instances
+  \item Max concurrency: 1000 instances / region
   \item Memory: 128 MB to 10 GB
   \item CPU: Proportional to memory (see below)
-  \item Timeout: 15min
+  \item Mx running time (timeout): 15min
   \end{itemize}
 \end{nrcanFrame}
 
@@ -187,13 +205,13 @@ source) in 2017.''
   \item Invocation payload: 6 MB (synchronous); 256 KB (asynchronous)
   \item Deployment package (zip) size: 50 MB (zipped), 250 MB (unzipped)
   \item Container image code package size limit: 10 GB
-  \item (As of June 2020): Mount \href{https://aws.amazon.com/efs/}{EFS (elastic file system)}
+  \item (As of June 2020): Lambdas can mount \href{https://aws.amazon.com/efs/}{EFS (elastic file system)}
     \begin{itemize}
     \item This allows lambdas to be stateful across invocations and lambdas, with state stored in EFS volume
-    \item Mount adds to cold start latency (see below):
+    \item Mounting adds to cold start latency (see below):
       \href{https://aws.amazon.com/blogs/compute/using-amazon-efs-for-aws-lambda-in-your-serverless-applications/}{``hundreds
         of milliseconds''} of latency
-    \item Lambda needs to be in the same
+    \item If using EFS, lambda needs to be in the same
       \href{https://aws.amazon.com/vpc/}{VPC (virtual private cloud)} as the EFS volume
     \end{itemize}
   \end{itemize}
@@ -279,12 +297,17 @@ def lambda_handler(event, context):
 \begin{nrcanFrame}
   \frametitle{Lambda containers}
   \begin{itemize}
-  \item Docker or Open Container Initiative (OCI)
+  \item Supported containers: Docker or Open Container Initiative (OCI)
   \item Deploy from \href{https://aws.amazon.com/ecr/}{Amazon Elastic Container Registry (ECR)}
   \item Many AWS-supplied base image options with \href{https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html}{pre-installed runtimes}
   \item
     AWS - \href{https://docs.aws.amazon.com/lambda/latest/dg/images-create.html}{Creating
       Lambda container images}
+    \item Azure Functions \textit{do} support Docker (but only for certain
+    \href{https://docs.microsoft.com/en-us/azure/azure-functions/functions-scale}{hosting
+      plans})
+    \item Google Cloud has \href{https://cloud.google.com/run}{Cloud
+      Run}, basically like AWS Lambda containers
   \end{itemize}
 \end{nrcanFrame}
 
@@ -306,7 +329,7 @@ def lambda_handler(event, context):
 \end{nrcanFrame}
 
 \nrcanGraphicFrame
-  {Cold Start Comparison: AWS, Azure, GCP}
+  {FAAS Cold Start Comparison: AWS, Azure, GCP}
   {coldStartComparison}
   {width=\paperwidth*10/11}
   {https://mikhail.io/serverless/coldstarts/big3/}
@@ -391,7 +414,7 @@ def lambda_handler(event, context):
 
 
 \begin{nrcanFrame}
-  \frametitle{Cold Start for different languages (milliseconds), different memory}
+  \frametitle{Cold start for different languages (ms), different memory}
   \centering
   \begin{table}
   \begin{tabular}{|r||r|r|r|r|r|r|r|r|}\hline    \hline
@@ -411,7 +434,7 @@ def lambda_handler(event, context):
 
 
 \nrcanGraphicFrame
-  {128 MB Average Warm Start (milliseconds)}
+  {128 MB Average Warm Start (ms)}
   {warmStart}
   {width=\paperwidth/7*6}
   {https://filia-aleks.medium.com/aws-lambda-battle-2021-performance-comparison-for-all-languages-c1b441005fd1}
@@ -419,10 +442,10 @@ def lambda_handler(event, context):
 
 \begin{nrcanFrame}
   \frametitle{Lambda cost exercise 1/4}
-  Example modest REST lambda microservice:
+  Example \textit{modest} REST lambda microservice:
   \begin{itemize}
-  \item 60 requests / minute (86,400 request / day)
-  \item 512 MB lambda memory
+  \item 60 requests / minute ($\sim$86k req/day; $\sim$2.6m req/month)
+  \item 512 MB lambda memory (1vCPU)
   \item 2 second (2000ms) average run time
   \item AWS Region: Canada (Central)
   \end{itemize}
@@ -489,7 +512,15 @@ def lambda_handler(event, context):
           Service (EKS)} etc\ldots
       }
     }
-\end{nrcanFrame}
+        \end{nrcanFrame}
+
+\begin{nrcanFrame}
+  \frametitle{Azure, GCP costing differences}
+  \begin{itemize}
+  \item Azure: billing precision: 1s; Monthly subscriptions
+  \item GCP: billing precision: 100 ms
+    \end{itemize}
+  \end{nrcanFrame}
 
 \nrcanGraphicFrame
   {FAAS Decision Tree (?)}
@@ -502,10 +533,12 @@ def lambda_handler(event, context):
   \frametitle{FAAS Disadvantages (1/2)}
     \begin{itemize}
     \item Needs tuning (to optimize cost vs. performance): Memory and \# of vCPUs.
-      Tools exist to automate this: AWS: \href{https://docs.aws.amazon.com/lambda/latest/operatorguide/profile-functions.html}{AWS Lambda Power Tuning}.
+      Tools exist to automate this: AWS:
+      \href{https://docs.aws.amazon.com/lambda/latest/operatorguide/profile-functions.html}
+           {AWS Lambda Power Tuning}. \alert{Minor}.
   \item Limits on memory and \# vCPUs: max 10 GB RAM and/or 6 vCPUs (AWS
     Lambda): Does not support many scientific use cases (i.e. large
-    memory work loads, etc)
+    memory work loads, etc).
   \item Limits on running time (15min for AWS): Too short for some enterprise and scientific workloads.
     For some use cases, this can be overcome with \href{https://en.wikipedia.org/wiki/Application\_checkpointing}{checkpointing} (often used in traditional high performance computing HPC) and lambda \href{https://en.wikipedia.org/wiki/Pipeline\_(software)}{pipelining}.
   \item Cold start issues
@@ -515,8 +548,9 @@ def lambda_handler(event, context):
 \begin{nrcanFrame}
   \frametitle{FAAS Disadvantages (2/2)}
     \begin{itemize}
-  \item Non-traditional architecture and technologies can challenge some developers
-  \item Stateless, which can be a challenge to designing and architecting
+  \item Non-traditional architecture and technologies can challenge
+    some developers / architects
+  \item Stateless (with exceptions), which can be a challenge to designing and architecting
   \item Vendor lock-in: Not too high a risk: lock-in is more likely
     with the use of vendor BAAS (backend as a service) services like
     backend databases, that the lambda uses
@@ -527,15 +561,43 @@ def lambda_handler(event, context):
 \end{nrcanFrame}
 
 
+\begin{nrcanFrame}
+  \frametitle{FAAS Orchestration}
+  ``\textit{Frequently, orchestration is what we actually mean when we
+    are talking about automating. Orchestration is automating many
+    tasks together. It’s automation not of a single task but an entire
+    IT-driven process. Orchestrating a process, then, is automating a
+    series of individual tasks to work together.}
+  -\href{https://www.bmc.com/blogs/it-orchestration-vs-automation-whats-the-difference/}
+       {BMC Blogs, Stephen Watts, Sept 2020}
+
+\end{nrcanFrame}
 
 \begin{nrcanFrame}
-  \frametitle{Correction}
+  \frametitle{FAAS Orchestration: Vendor support}
   \begin{itemize}
-  \item MS Azure Functions \textit{do} support Docker (but only for certain
-    \href{https://docs.microsoft.com/en-us/azure/azure-functions/functions-scale}{hosting
-      plans})
-    \item Google Cloud has \href{https://cloud.google.com/run}{Cloud
-      Run}, basically like AWS Lambda containers
+  \item AWS:
+    \href{https://docs.aws.amazon.com/step-functions/index.html}
+         {Step Functions} -
+         \textit{``Step Functions is a serverless
+      orchestration service that lets you combine AWS Lambda functions
+      and other AWS services to build business-critical
+      applications. ``}
+    \begin{itemize}
+    \item Visual editor
+      \href{https://docs.aws.amazon.com/step-functions/latest/dg/workflow-studio.html}
+      {Workflow Studio}
+    \end{itemize}
+  \item Azure:
+    \href{https://docs.microsoft.com/en-us/azure/azure-functions/durable/}
+         {Durable Functions}
+         -``\textit{Durable Functions is an extension of Azure Functions that lets you write stateful functions in a serverless compute environment. The extension lets you define stateful workflows by writing orchestrator functions and stateful entities by writing entity functions using the Azure Functions programming model.}''
+  \item GCP:
+    \href{https://cloud.google.com/composer/}
+         {Cloud Composer}
+         -``\textit{A fully managed workflow orchestration service
+           built on
+           \href{https://airflow.apache.org/}{Apache Airflow}.}''
   \end{itemize}
 \end{nrcanFrame}
 
