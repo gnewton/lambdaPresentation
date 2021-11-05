@@ -1,6 +1,12 @@
 \documentclass[11pt,aspectratio=169]{beamer}
 
+\usepackage{color, colortbl}
+\usepackage{siunitx} 
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs, array}
+
 \usepackage{listings}
+\usepackage[first=0,last=9]{lcg}
 
 \input{nrcan_template_base}
 
@@ -116,7 +122,11 @@ source) in 2017.''
   \item Provisioning/deployment (usually) simple
   \item \alert{Secure}: Functions (should) have IAM roles that 
     allow them to do exactly
-    alert{(and only)} what they need to do.
+    \alert{(and only)} what they need to do.
+    Very useful for granular securing of microservices, and managing
+    developer API keys, i.e. if you have read-only access, you only get
+    access to the lambda that provides read-only access.
+
   \end{itemize}
 \end{nrcanFrame}
 
@@ -222,16 +232,19 @@ source) in 2017.''
   \frametitle{AWS Lambda: Proportion of vCPU to memory}
   \centering
   \begin{table}
-  \begin{tabular}{|c||l|}
-    \hline    \hline
-    \bf Memory & \# \bf vCPU \\  \hline
-    128 MB & 1 vCPU \\ \hline
-  832 MB & 2 vCPU \\ \hline
-  3 GB & 3 vCPU \\ \hline
-  5.3 GB & 4 vCPU \\ \hline
-  7 GB & 5 vCPU \\ \hline
+  \begin{tabular}{cl}
+      \toprule 
+    \bf Memory & \# \bf vCPU \\ 
+    \rowcolor{gray!50}
+    128 MB & 1 vCPU \\ 
+    832 MB & 2 vCPU \\ 
+    \rowcolor{gray!50}
+  3 GB & 3 vCPU \\ 
+  5.3 GB & 4 vCPU \\
+  \rowcolor{gray!50}
+  7 GB & 5 vCPU \\
   8.8+ GB & 6 vCPU \\
-      \hline    \hline
+      \bottomrule
   \end{tabular}
   \end{table}
 \end{nrcanFrame}
@@ -417,15 +430,19 @@ def lambda_handler(event, context):
   \frametitle{Cold start for different languages (ms), different memory}
   \centering
   \begin{table}
-  \begin{tabular}{|r||r|r|r|r|r|r|r|r|}\hline    \hline
-    \bf Memory      &\bf Java 	&\bf Graalvm& \bf .Net &	\bf Go& 	\bf Rust& 	\bf Python& 	\bf NodeJS& 	\bf Ruby\\ \hline
-    128mb 	&OOM 	&1480 &	  11810 &	1050 &	844 &	641 &	        1190 &	773\\ \hline
-    256mb 	&6570 &	774 &	  5820 &	661 &	480 &	527 &	        769 &	612\\ \hline
-    512mb 	&5180 &	684 &	  2940 &	404 &	304 &	502 &	        771 &	677\\ \hline
-    1024mb 	&4450 &	531 &	  1500 &	299 &	234 &	482 &	        656 &	652\\ \hline
-    10240mb     &2790 &	501 &	  904 &	        327 &	219 &	449 &	        518 &	649\\ \hline
-      \hline 
-  \end{tabular}
+    \begin{tabular}{rrrrrrrrr}
+      \toprule 
+      \bf Memory (MB)   &\multicolumn{1}{c}{\bf Java} &\multicolumn{1}{c}{\bf Graalvm} &\multicolumn{1}{c}{\bf .Net} &\multicolumn{1}{c}{\bf Go} &\multicolumn{1}{c}{\bf Rust} &\multicolumn{1}{c}{\bf Python} &\multicolumn{1}{c}{\bf NodeJS} &\multicolumn{1}{c}{\bf Ruby}\\ 
+      \rowcolor{gray!50}
+      \textbf{128} 	&OOM      &1480        &11810    &1050   &844       & 641      &1190       &773\\ 
+      \textbf{256} 	&6570     &774         &5820     &661    &480       & 527      &769        &612\\ 
+      \rowcolor{gray!50}
+      \textbf{512} 	&5180     &684         &2940     &404    &304       & 502      &771        &677\\ 
+      \textbf{1024} 	&4450     &531         &1500     &299    &234       & 482      &656        &652\\ 
+      \rowcolor{gray!50}
+      \textbf{10240}   & 2790    &501         &904      &327    & 219      &449       &518        &649\\ 
+      \bottomrule
+    \end{tabular}
   \end{table}
 
   {\tiny Source: \url{https://filia-aleks.medium.com/benchmarking-all-aws-lambda-runtimes-in-2021-cold-start-part-1-e4146fe89385}}
@@ -441,19 +458,20 @@ def lambda_handler(event, context):
 
 
 \begin{nrcanFrame}
-  \frametitle{Lambda cost exercise 1/4}
+  \frametitle{Lambda cost exercise 1/5}
   Example \textit{modest} REST lambda microservice:
   \begin{itemize}
   \item 60 requests / minute ($\sim$86k req/day; $\sim$2.6m req/month)
   \item 512 MB lambda memory (1vCPU)
   \item 2 second (2000ms) average run time
+  \item 10k average response size
   \item AWS Region: Canada (Central)
   \end{itemize}
 \end{nrcanFrame}
 
 
 \begin{nrcanFrame}
-  \frametitle{Lambda cost exercise 2/4: Lambda \textit{only} costs, per month}
+  \frametitle{Lambda cost exercise 2/5: Lambda \textit{only} costs, per month}
   Using
   \href{https://calculator.aws/\#/createCalculator/Lambda}
        {AWS Pricing Calculator}:
@@ -472,9 +490,8 @@ def lambda_handler(event, context):
 \end{nrcanFrame}
 
 
-
 \begin{nrcanFrame}
-  \frametitle{Lambda cost exercise 3/4: API Gateway costs}
+  \frametitle{Lambda cost exercise 3/5: API Gateway costs}
   Using
   \href{https://calculator.aws/\#/createCalculator/APIGateway}{AWS
     Pricing Calculator}:
@@ -497,13 +514,43 @@ def lambda_handler(event, context):
 
 \end{nrcanFrame}
 
+
+\begin{nrcanFrame}
+  \frametitle{Lambda cost exercise 4/5: Monthly Data Egress}
+  \begin{itemize}
+  \item
+    Data egress:\newline
+    2,592,000 requests per month x 10 KB response size = 25,920,000 KB \newline \textbf{= 25.92 GB}
+  \item 
+  Lambda \href{https://aws.amazon.com/lambda/pricing/}{egress rates} (same as EC2
+  \href{https://aws.amazon.com/ec2/pricing/on-demand/}{data egress costs})
+  \end{itemize}
+  
+  \centering
+  \begin{table}
+    \begin{tabular}{rll*{1}{S[table-format=4.2, table-number-alignment=center]}}
+      \toprule 
+      \multicolumn{1}{l}{\textbf{Data Transfer OUT From}} &                &                    & \\ 
+      \multicolumn{1}{l}{\textbf{Amazon EC2 To Internet}} & \textbf{Cost}  & \textbf{Amount}    & \multicolumn{1}{l}{\textbf{Cost}}\\ \hline
+      Up to 1 GB / Month              & \$0.00 per GB  & 1 GB                                    & \$0.00 \\
+      Next 9.999 TB / Month           & \$0.09 per GB  & 9.999 GB                                & \$0.90 \\
+      Next 40 TB / Month              & \$0.085 per GB & 14.93 GB                                & \$1.19 \\ \hline
+                                      & \multicolumn{2}{r}{Total Monthly Egress Cost\ \ USD}    & \$2.09 \\
+                                      &                & \multicolumn{1}{r}{\textbf{CAD}}                & \textbf{\$2.59} \\
+      \bottomrule
+      \end{tabular}
+  \end{table}
+
+\end{nrcanFrame}  
+
+
         \begin{nrcanFrame}
-  \frametitle{Lambda cost exercise 4/4: Total costs}
+  \frametitle{Lambda cost exercise 5/5: Total costs}
     \ \\ \vspace{1mm}
-\texttt{\textbf{Total per month (Lambda + API Gateway): \$65.37 CAD}}
+\texttt{Total per month (Lambda + API Gateway + Data egress): \textbf{\$67.96 CAD}}
 \ \\
 \vspace{1cm}
-    { \alert{NB: Does not cost-out backend AWS DB costs: most applications
+    { \alert{NB: Does not cost-out backend AWS DB costs: many applications
         would likely have this additional cost. But this would be the same for all
         implementations, i.e. Lambda,
         \href{https://aws.amazon.com/ec2/}{EC2},
@@ -540,7 +587,7 @@ def lambda_handler(event, context):
     Lambda): Does not support many scientific use cases (i.e. large
     memory work loads, etc).
   \item Limits on running time (15min for AWS): Too short for some enterprise and scientific workloads.
-    For some use cases, this can be overcome with \href{https://en.wikipedia.org/wiki/Application\_checkpointing}{checkpointing} (often used in traditional high performance computing HPC) and lambda \href{https://en.wikipedia.org/wiki/Pipeline\_(software)}{pipelining}.
+    For some use cases, this can be overcome with \href{https://en.wikipedia.org/wiki/Application\_checkpointing}{checkpointing} (often used in traditional high performance computing HPC) and lambda \href{https://en.wikipedia.org/wiki/Pipeline\_(software)}{pipelining} and orchestration (see below).
   \item Cold start issues
     \end{itemize}
 \end{nrcanFrame}
