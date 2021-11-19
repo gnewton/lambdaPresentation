@@ -7,6 +7,7 @@
 
 \usepackage{listings}
 \usepackage[first=0,last=9]{lcg}
+\usepackage[normalem]{ulem}
 
 \input{nrcan_template_base}
 
@@ -23,7 +24,7 @@
 }
 \date[2021 10 28] % (optional)
      {NRCan Sectors Cloud Working Group\\
-     2021 10 28}
+       \sout{2021 10 28} 2021 11 19}
 
 \logo{\begin{tikzpicture}
     \node at (0cm,0cm) {};
@@ -202,7 +203,7 @@ source) in 2017.''
   \item Max concurrency: 1000 instances / region
   \item Memory: 128 MB to 10 GB
   \item CPU: Proportional to memory (see below)
-  \item Mx running time (timeout): 15min
+  \item Max running time (timeout): 15min
   \end{itemize}
 \end{nrcanFrame}
 
